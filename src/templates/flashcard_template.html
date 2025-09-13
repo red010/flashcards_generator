@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard: ${project_title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-glow-color: #00AFFF;
+            --secondary-glow-color: #9B59B6;
+            --background-color: #0A0A1A;
+            --text-color: #EAEAEA;
+            --card-front-bg: rgba(25, 25, 55, 0.8);  /* Brighter and more blue */
+            --card-back-bg: rgba(40, 25, 60, 0.8);   /* Brighter and more purple */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            font-size: 20px; /* Increased base font size */
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem; /* Reduced margin */
+            text-shadow: 0 0 10px var(--primary-glow-color), 0 0 20px var(--primary-glow-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .status-container {
+            width: 100%;
+            max-width: 700px;
+            text-align: right;
+            margin-bottom: 0.5rem;
+            height: 30px; /* Reserve space for icons */
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .status-icon {
+            font-size: 1.8rem; /* Standardized icon size */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #666; /* Inactive color */
+            user-select: none;
+        }
+
+        .star.active {
+            color: #f1c40f; /* Active color (gold) */
+            text-shadow: 0 0 10px #f1c40f;
+        }
+        
+        .status-icon:hover {
+            transform: scale(1.2);
+        }
+
+        .flashcard-container {
+            perspective: 1500px;
+            width: 100%;
+            max-width: 700px;
+            height: 400px;
+            margin-bottom: 2rem;
+        }
+
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .flashcard-container.is-flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front,
+        .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid var(--primary-glow-color);
+            box-shadow: 0 0 15px var(--primary-glow-color), inset 0 0 10px rgba(0, 175, 255, 0.5);
+            backdrop-filter: blur(12px);
+            text-align: center;
+            line-height: 1.6;
+            font-size: 1.8rem; /* Increased card font size */
+            overflow-y: auto;
+        }
+
+        .flashcard-front {
+            background: var(--card-front-bg);
+        }
+
+        .flashcard-back {
+            background: var(--card-back-bg);
+            border-color: var(--secondary-glow-color);
+            box-shadow: 0 0 15px var(--secondary-glow-color), inset 0 0 10px rgba(155, 89, 182, 0.5);
+            transform: rotateY(180deg);
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            user-select: none;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .control-button {
+            background: transparent;
+            border: 2px solid var(--primary-glow-color);
+            color: var(--text-color);
+            padding: 10px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .control-button:hover,
+        .control-button:focus {
+            color: white;
+            border-color: #fff;
+            box-shadow: 0 0 25px var(--primary-glow-color);
+            transform: translateY(-2px);
+            outline: none;
+        }
+        
+        #filter-button {
+            border-color: #27ae60; /* Green color for filter */
+            width: 180px; /* Wider button */
+        }
+        
+        #filter-button:hover,
+        #filter-button:focus {
+             box-shadow: 0 0 25px #27ae60;
+        }
+
+        #card-counter {
+            font-size: 1.2rem;
+            font-weight: 700;
+            min-width: 100px;
+            text-align: center;
+            flex-grow: 1; /* Allow counter to take space */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+            padding: 5px 10px;
+        }
+
+        #card-counter:hover {
+            color: #fff;
+            box-shadow: 0 0 20px rgba(40, 150, 255, 0.7);
+        }
+    </style>
+</head>
+<body>
+
+    <main>
+        <h1>${project_title}</h1>
+        
+        <section class="status-container">
+            <span id="copy-icon" class="status-icon" title="Copy Q&A to clipboard">&#128203;</span> <!-- Clipboard emoji -->
+            <span id="star-icon" class="status-icon star" title="Toggle this card's active state">&#9734;</span>
+        </section>
+
+        <section class="flashcard-container" id="flashcard-container">
+            <div class="flashcard-inner" id="flashcard-inner">
+                <div class="flashcard-front" id="flashcard-front">
+                    <!-- Question will be injected here -->
+                </div>
+                <div class="flashcard-back" id="flashcard-back">
+                    <!-- Answer will be injected here -->
+                </div>
+            </div>
+        </section>
+
+        <section class="controls">
+            <button class="control-button" id="prev-button">Precedente</button>
+            <div id="card-counter">...</div>
+            <button class="control-button" id="next-button">Successiva</button>
+        </section>
+    </main>
+
+    <script>
+        const flashcardsData = '${flashcards_data}';
+
+        // DOM Elements
+        const flashcardContainer = document.getElementById('flashcard-container');
+        const flashcardFront = document.getElementById('flashcard-front');
+        const flashcardBack = document.getElementById('flashcard-back');
+        const cardCounter = document.getElementById('card-counter');
+        const prevButton = document.getElementById('prev-button');
+        const nextButton = document.getElementById('next-button');
+        const starIcon = document.getElementById('star-icon');
+        const copyIcon = document.getElementById('copy-icon');
+
+        // State
+        let currentCardIndex = 0;
+        let activeIndices = [];
+        let filterMode = 'all'; // 'all' or 'active'
+
+        function initializeData() {
+            // Add isActive property to all cards and populate activeIndices
+            flashcardsData.forEach((card, index) => {
+                card.isActive = true; // All cards start as active
+                activeIndices.push(index);
+            });
+        }
+        
+        function updateStarVisual() {
+            if (flashcardsData[currentCardIndex].isActive) {
+                starIcon.classList.add('active');
+                starIcon.innerHTML = '&#9733;'; // Filled star
+                starIcon.title = 'Card is active. Click to deactivate.';
+            } else {
+                starIcon.classList.remove('active');
+                starIcon.innerHTML = '&#9734;'; // Outlined star
+                starIcon.title = 'Card is inactive. Click to activate.';
+            }
+        }
+
+        function displayCard() {
+            if (flashcardsData.length === 0) return;
+            
+            const showingActiveOnly = filterMode === 'active' && activeIndices.length === 0;
+
+            if (showingActiveOnly) {
+                flashcardFront.textContent = "Nessuna card attiva.";
+                flashcardBack.textContent = "Attiva una o più card, oppure passa alla modalità 'Mostra Tutte'.";
+                cardCounter.textContent = `0 / ${flashcardsData.length} attive`;
+                starIcon.style.display = 'none';
+                copyIcon.style.display = 'none';
+                return;
+            }
+            
+            starIcon.style.display = 'inline-block';
+            copyIcon.style.display = 'inline-block';
+            
+            const card = flashcardsData[currentCardIndex];
+            flashcardFront.textContent = card.question;
+            flashcardBack.textContent = card.answer;
+            
+            // Update counter based on filter mode
+            if (filterMode === 'active') {
+                const currentIndexInActiveList = activeIndices.indexOf(currentCardIndex);
+                cardCounter.textContent = `${currentIndexInActiveList + 1} / ${activeIndices.length} attive`;
+            } else {
+                cardCounter.textContent = `${currentCardIndex + 1} / ${flashcardsData.length} totali`;
+            }
+            
+            updateStarVisual();
+            flashcardContainer.classList.remove('is-flipped');
+        }
+
+        function getNextCardIndex() {
+            if (filterMode === 'active') {
+                if (activeIndices.length <= 1) return currentCardIndex;
+                const currentIndexInActiveList = activeIndices.indexOf(currentCardIndex);
+                const nextIndexInActiveList = (currentIndexInActiveList + 1) % activeIndices.length;
+                return activeIndices[nextIndexInActiveList];
+            } else {
+                // 'all' mode
+                return (currentCardIndex + 1) % flashcardsData.length;
+            }
+        }
+
+        function getPrevCardIndex() {
+            if (filterMode === 'active') {
+                if (activeIndices.length <= 1) return currentCardIndex;
+                const currentIndexInActiveList = activeIndices.indexOf(currentCardIndex);
+                const prevIndexInActiveList = (currentIndexInActiveList - 1 + activeIndices.length) % activeIndices.length;
+                return activeIndices[prevIndexInActiveList];
+            } else {
+                // 'all' mode
+                return (currentCardIndex - 1 + flashcardsData.length) % flashcardsData.length;
+            }
+        }
+
+        function nextCard() {
+            const potentialNextIndex = getNextCardIndex();
+            // This check is mainly for when there are 0 active cards
+            if (filterMode === 'active' && activeIndices.length === 0) return;
+            currentCardIndex = potentialNextIndex;
+            displayCard();
+        }
+
+        function prevCard() {
+            const potentialPrevIndex = getPrevCardIndex();
+            // This check is mainly for when there are 0 active cards
+            if (filterMode === 'active' && activeIndices.length === 0) return;
+            currentCardIndex = potentialPrevIndex;
+            displayCard();
+        }
+
+        function flipCard() {
+            const showingActiveOnly = filterMode === 'active' && activeIndices.length === 0;
+            if (showingActiveOnly) return;
+            flashcardContainer.classList.toggle('is-flipped');
+        }
+        
+        function toggleActiveState() {
+            const card = flashcardsData[currentCardIndex];
+            card.isActive = !card.isActive;
+
+            // Rebuild the activeIndices array
+            const wasActive = activeIndices.includes(currentCardIndex);
+            activeIndices = flashcardsData
+                .map((c, index) => c.isActive ? index : -1)
+                .filter(index => index !== -1);
+            
+            // Only jump to another card if we are in 'active' mode and just deactivated the current one.
+            if (filterMode === 'active' && wasActive && !card.isActive && activeIndices.length > 0) {
+                // Find the next available active card to avoid a blank screen
+                currentCardIndex = activeIndices[0]; // Jump to the first active card
+            }
+            // In 'all' mode, we stay on the current card.
+            
+            displayCard(); // Re-render the view with new state
+        }
+
+        function toggleFilterMode() {
+            if (filterMode === 'all') {
+                filterMode = 'active';
+                // If current card is inactive, jump to the first active one
+                if (!flashcardsData[currentCardIndex].isActive && activeIndices.length > 0) {
+                    currentCardIndex = activeIndices[0];
+                }
+            } else {
+                filterMode = 'all';
+            }
+            displayCard();
+        }
+        
+        function copyToClipboard() {
+            const showingActiveOnly = filterMode === 'active' && activeIndices.length === 0;
+            if (showingActiveOnly) return;
+            
+            const card = flashcardsData[currentCardIndex];
+            const textToCopy = `Q: ${card.question}\nA: ${card.answer}`;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                // Success feedback
+                const originalIcon = copyIcon.innerHTML;
+                copyIcon.innerHTML = '&#9989;'; // Checkmark
+                copyIcon.style.color = '#27ae60'; // Green
+                setTimeout(() => {
+                    copyIcon.innerHTML = originalIcon;
+                    copyIcon.style.color = '#666';
+                }, 1200);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                // Optional: provide user feedback on error
+            });
+        }
+
+        // Event Listeners
+        nextButton.addEventListener('click', nextCard);
+        prevButton.addEventListener('click', prevCard);
+        cardCounter.addEventListener('click', toggleFilterMode);
+        flashcardContainer.addEventListener('click', flipCard);
+        starIcon.addEventListener('click', toggleActiveState);
+        copyIcon.addEventListener('click', copyToClipboard);
+
+        // Initial display
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeData();
+            displayCard();
+        });
+
+    </script>
+</body>
+</html>
