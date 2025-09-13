@@ -187,6 +187,138 @@
             color: #fff;
             box-shadow: 0 0 20px rgba(40, 150, 255, 0.7);
         }
+
+        /* Help Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card-front-bg);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid var(--primary-glow-color);
+            box-shadow: 0 0 25px var(--primary-glow-color);
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 2rem;
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .modal-close:hover {
+            transform: scale(1.2);
+        }
+
+        .modal-content h2 {
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .modal-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .modal-content li {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .modal-content code {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        #help-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-glow-color);
+            color: white;
+            border: none;
+            font-size: 1.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 20px var(--primary-glow-color);
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        #help-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px var(--primary-glow-color);
+        }
+
+        /* Responsive Design for Mobile Devices */
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+                font-size: 18px; /* Adjust base font size for mobile */
+            }
+
+            h1 {
+                font-size: 1.8rem;
+                margin-bottom: 0.8rem;
+            }
+
+            .flashcard-container {
+                height: 60vh; /* Make card height relative to screen height */
+                max-height: 450px;
+                margin-bottom: 1.5rem;
+            }
+
+            .flashcard-front,
+            .flashcard-back {
+                font-size: 1.3rem; /* Smaller font size inside the card */
+                padding: 20px;
+            }
+
+            .controls {
+                gap: 1rem; /* Tighter controls */
+            }
+
+            .control-button {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+
+            #card-counter {
+                padding: 5px;
+                font-size: 1rem;
+            }
+
+            #help-button {
+                top: 15px;
+                right: 15px;
+                width: 45px;
+                height: 45px;
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -217,6 +349,21 @@
         </section>
     </main>
 
+    <button id="help-button">?</button>
+
+    <div class="modal-overlay" id="help-modal">
+        <div class="modal-content">
+            <span class="modal-close" id="modal-close-button">&times;</span>
+            <h2>Guida Rapida</h2>
+            <ul>
+                <li><strong>Gira la Card</strong>: Clicca in un punto qualsiasi della card per vedere la risposta.</li>
+                <li><strong>Filtra le Card</strong>: Clicca sul contatore (es. <code>1 / 50 totali</code>) per passare dalla visualizzazione di tutte le card a quella delle sole card attive.</li>
+                <li><strong>Attiva/Disattiva Card</strong>: Clicca sulla stella (&#9733;) per includere o escludere una card dalla modalità "attive".</li>
+                <li><strong>Copia Testo</strong>: Clicca sull'icona della clipboard (&#128203;) per copiare domanda e risposta negli appunti.</li>
+            </ul>
+        </div>
+    </div>
+
     <script>
         const flashcardsData = '${flashcards_data}';
 
@@ -229,6 +376,9 @@
         const nextButton = document.getElementById('next-button');
         const starIcon = document.getElementById('star-icon');
         const copyIcon = document.getElementById('copy-icon');
+        const helpButton = document.getElementById('help-button');
+        const helpModal = document.getElementById('help-modal');
+        const modalCloseButton = document.getElementById('modal-close-button');
 
         // State
         let currentCardIndex = 0;
@@ -389,6 +539,15 @@
             });
         }
 
+        // --- Modal Logic ---
+        function openModal() {
+            helpModal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            helpModal.style.display = 'none';
+        }
+
         // Event Listeners
         nextButton.addEventListener('click', nextCard);
         prevButton.addEventListener('click', prevCard);
@@ -396,6 +555,14 @@
         flashcardContainer.addEventListener('click', flipCard);
         starIcon.addEventListener('click', toggleActiveState);
         copyIcon.addEventListener('click', copyToClipboard);
+        helpButton.addEventListener('click', openModal);
+        modalCloseButton.addEventListener('click', closeModal);
+        helpModal.addEventListener('click', (event) => {
+            // Close modal if user clicks on the overlay itself, but not on the content
+            if (event.target === helpModal) {
+                closeModal();
+            }
+        });
 
         // Initial display
         document.addEventListener('DOMContentLoaded', () => {

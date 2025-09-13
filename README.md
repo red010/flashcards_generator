@@ -18,12 +18,14 @@ Questo progetto automatizza la creazione di applicazioni di flashcard web intera
 
 L'applicazione HTML creata è un'interfaccia di studio moderna e interattiva con le seguenti caratteristiche:
 
+-   **Design Responsive**: L'interfaccia si adatta automaticamente per una visualizzazione ottimale sia su desktop che su dispositivi mobili.
 -   **Animazione 3D**: Le card si girano con un'animazione fluida cliccando su di esse.
 -   **Contatore Interattivo (Filtro Visualizzazione)**: Il contatore (es. "1 / 50 totali") è cliccabile e funge da selettore di modalità:
     -   **Modalità "totali"**: Mostra tutte le card del set.
     -   **Modalità "attive"**: Mostra solo le card contrassegnate come attive (con la stella).
 -   **Stato Attivo/Inattivo (Stella)**: Cliccando sull'icona a forma di stella (★), è possibile contrassegnare o de-contrassegnare una card. Le card inattive vengono saltate quando si è in modalità "attive".
 -   **Copia negli Appunti**: L'icona a forma di clipboard (📋) permette di copiare istantaneamente la domanda e la risposta della card corrente in formato testo.
+-   **Guida Integrata**: Un pulsante di aiuto (`?`) in alto a destra apre una finestra con la spiegazione di tutte le funzionalità.
 
 ---
 
